@@ -1,10 +1,10 @@
-name: Static Analysis
+name: Run tests
  
 on: [push]
  
 jobs:
-  phpstan:
-    name: phpstan
+  tests:
+    name: Run tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -13,10 +13,16 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
           coverage: none
  
-      - name: Install composer dependencies
+      - name: Run composer install
         run: composer install -n --prefer-dist
  
-      - name: Run Static Analysis
-        run: ./vendor/bin/phpstan --error-format=github
+      - name: Prepare Laravel Application
+        run: |
+          cp .env.ci .env
+          php artisan key:generate
+ 
+      - name: Run tests
+        run: php artisan test
